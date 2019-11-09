@@ -306,7 +306,7 @@ int Master::Run()
         std::string builds = AcceptableClientBuildsListStr();
         LoginDatabase.escape_string(builds);
 
-        LoginDatabase.PExecute("UPDATE realmlist SET flag = flag & ~(%u), population = 0, gamebuild = '%s'  WHERE id = '%u'", REALM_FLAG_OFFLINE, builds.c_str(), realmID);
+        LoginDatabase.PExecute("UPDATE realmlist_classic SET flag = flag & ~(%u), population = 0, gamebuild = '%s'  WHERE id = '%u'", REALM_FLAG_OFFLINE, builds.c_str(), realmID);
     }
 
     ACE_Based::Thread* cliThread = NULL;
@@ -439,7 +439,7 @@ int Master::Run()
     }
 
     ///- Set server offline in realmlist
-    //LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%u'", REALM_FLAG_OFFLINE, realmID);
+    //LoginDatabase.DirectPExecute("UPDATE realmlist_classic SET flag = flag | %u WHERE id = '%u'", REALM_FLAG_OFFLINE, realmID);
 
     ///- Remove signal handling before leaving
     _UnhookSignals();

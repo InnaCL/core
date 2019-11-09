@@ -291,7 +291,7 @@ void World::AddSession_(WorldSession* s)
 
         static SqlStatementID id;
 
-        SqlStatement stmt = LoginDatabase.CreateStatement(id, "UPDATE realmlist SET population = ? WHERE id = ?");
+        SqlStatement stmt = LoginDatabase.CreateStatement(id, "UPDATE realmlist_classic SET population = ? WHERE id = ?");
         stmt.PExecute(popu, realmID);
 
         DETAIL_LOG("Server Population (%f).", popu);
@@ -1234,7 +1234,7 @@ void World::SetInitialWorldSettings()
     // not send custom type REALM_FFA_PVP to realm list
     uint32 server_type = IsFFAPvPRealm() ? REALM_TYPE_PVP : getConfig(CONFIG_UINT32_GAME_TYPE);
     uint32 realm_zone = getConfig(CONFIG_UINT32_REALM_ZONE);
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%u'", server_type, realm_zone, realmID);
+    LoginDatabase.PExecute("UPDATE realmlist_classic SET icon = %u, timezone = %u WHERE id = '%u'", server_type, realm_zone, realmID);
 
     sLog.outString("Loading GM security access ...");
     sAccountMgr.Load();
@@ -2698,7 +2698,7 @@ void World::SetPlayerLimit(int32 limit, bool needUpdate)
     m_playerLimit = limit;
 
     if (db_update_need)
-        LoginDatabase.PExecute("UPDATE realmlist SET allowedSecurityLevel = '%u' WHERE id = '%u'",
+        LoginDatabase.PExecute("UPDATE realmlist_classic SET allowedSecurityLevel = '%u' WHERE id = '%u'",
                                uint32(GetPlayerSecurityLimit()), realmID);
 }
 

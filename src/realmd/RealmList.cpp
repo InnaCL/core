@@ -159,7 +159,7 @@ void RealmList::UpdateRealms(bool init)
         //      0   1       2       3       4   5           6
         "SELECT id, name, address, port, icon, flag, timezone, "
         // 7                    8           9
-        "allowedSecurityLevel, population, gamebuild FROM realmlist "
+        "allowedSecurityLevel, population, gamebuild FROM realmlist_classic "
         "WHERE (flag & 1) = 0 ORDER BY name");
 
     ///- Circle through results and add them to the realm map

@@ -456,12 +456,12 @@ void MySqlPreparedStatement::addParam( int nIndex, const SqlStmtFieldData& data 
 
     MYSQL_BIND& pData = m_pInputArgs[nIndex];
 
-    my_bool bUnsigned = 0;
+    bool* bUnsigned = 0;
     enum_field_types dataType = ToMySQLType(data, bUnsigned);
 
     //setup MYSQL_BIND structure
     pData.buffer_type = dataType;
-    pData.is_unsigned = bUnsigned;
+    pData.is_unsigned =! bUnsigned;
     pData.buffer = data.buff();
     pData.length = 0;
     pData.buffer_length = data.type() == FIELD_STRING ? data.size() : 0;
@@ -501,7 +501,7 @@ bool MySqlPreparedStatement::execute()
     return true;
 }
 
-enum_field_types MySqlPreparedStatement::ToMySQLType( const SqlStmtFieldData &data, my_bool &bUnsigned )
+enum_field_types MySqlPreparedStatement::ToMySQLType( const SqlStmtFieldData &data,  bool* &bUnsigned )
 {
     bUnsigned = 0;
     enum_field_types dataType = MYSQL_TYPE_NULL;
@@ -509,15 +509,15 @@ enum_field_types MySqlPreparedStatement::ToMySQLType( const SqlStmtFieldData &da
     switch (data.type())
     {
     case FIELD_NONE:    dataType = MYSQL_TYPE_NULL;                     break;
-    case FIELD_BOOL:    dataType = MYSQL_TYPE_BIT;      bUnsigned = 1;  break;
+    case FIELD_BOOL:    dataType = MYSQL_TYPE_BIT;       				break;
     case FIELD_I8:      dataType = MYSQL_TYPE_TINY;                     break;
-    case FIELD_UI8:     dataType = MYSQL_TYPE_TINY;     bUnsigned = 1;  break;
+    case FIELD_UI8:     dataType = MYSQL_TYPE_TINY;      			    break;
     case FIELD_I16:     dataType = MYSQL_TYPE_SHORT;                    break;
-    case FIELD_UI16:    dataType = MYSQL_TYPE_SHORT;    bUnsigned = 1;  break;
+    case FIELD_UI16:    dataType = MYSQL_TYPE_SHORT;     			    break;
     case FIELD_I32:     dataType = MYSQL_TYPE_LONG;                     break;
-    case FIELD_UI32:    dataType = MYSQL_TYPE_LONG;     bUnsigned = 1;  break;
+    case FIELD_UI32:    dataType = MYSQL_TYPE_LONG;      			    break;
     case FIELD_I64:     dataType = MYSQL_TYPE_LONGLONG;                 break;
-    case FIELD_UI64:    dataType = MYSQL_TYPE_LONGLONG; bUnsigned = 1;  break;
+    case FIELD_UI64:    dataType = MYSQL_TYPE_LONGLONG;  				break;
     case FIELD_FLOAT:   dataType = MYSQL_TYPE_FLOAT;                    break;
     case FIELD_DOUBLE:  dataType = MYSQL_TYPE_DOUBLE;                   break;
     case FIELD_STRING:  dataType = MYSQL_TYPE_STRING;                   break;

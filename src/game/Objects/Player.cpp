@@ -15560,7 +15560,7 @@ void Player::_LoadSpells(QueryResult *result)
 
 void Player::_LoadGroup(QueryResult *result)
 {
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT groupId FROM group_member WHERE memberGuid='%u'", GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT groupId FROM party_member WHERE memberGuid='%u'", GetGUIDLow());
     if (result)
     {
         uint32 groupId = (*result)[0].GetUInt32();
@@ -15880,7 +15880,7 @@ bool Player::_LoadHomeBind(QueryResult *result)
 
 void Player::_LoadGuild(QueryResult* result)
 {
-    //"SELECT guildid,rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
+    //"SELECT guildid,guild_rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
 
     if (result)
     {

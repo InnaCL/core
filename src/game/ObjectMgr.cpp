@@ -4556,7 +4556,7 @@ void ObjectMgr::LoadGroups()
     // -- loading groups --
     uint32 count = 0;
     //                                                                   0           1                2             3             4                5        6        7        8        9        10       11       12       13        14            15
-    std::unique_ptr<QueryResult> result(CharacterDatabase.Query("SELECT `mainTank`, `mainAssistant`, `lootMethod`, `looterGuid`, `lootThreshold`, `icon1`, `icon2`, `icon3`, `icon4`, `icon5`, `icon6`, `icon7`, `icon8`, `isRaid`, `leaderGuid`, `groupId` FROM `groups`"));
+    std::unique_ptr<QueryResult> result(CharacterDatabase.Query("SELECT `mainTank`, `mainAssistant`, `lootMethod`, `looterGuid`, `lootThreshold`, `icon1`, `icon2`, `icon3`, `icon4`, `icon5`, `icon6`, `icon7`, `icon8`, `isRaid`, `leaderGuid`, `groupId` FROM `parties`"));
 
     if (!result)
     {
@@ -4593,7 +4593,7 @@ void ObjectMgr::LoadGroups()
     // -- loading members --
     count = 0;
     //                                            0             1            2           3
-    result.reset(CharacterDatabase.Query("SELECT `memberGuid`, `assistant`, `subgroup`, `groupId` FROM `group_member` ORDER BY `groupId`"));
+    result.reset(CharacterDatabase.Query("SELECT `memberGuid`, `assistant`, `subgroup`, `groupId` FROM `party_member` ORDER BY `groupId`"));
     if (!result)
     {
         BarGoLink bar2(1);
@@ -4620,18 +4620,18 @@ void ObjectMgr::LoadGroups()
                 group = GetGroupById(groupId);
                 if (!group)
                 {
-                    sLog.outErrorDb("Incorrect entry in group_member table : no group with Id %d for member %s!",
+                    sLog.outErrorDb("Incorrect entry in party_member table : no group with Id %d for member %s!",
                                     groupId, memberGuid.GetString().c_str());
-                    CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'", memberGuidlow);
+                    CharacterDatabase.PExecute("DELETE FROM party_member WHERE memberGuid = '%u'", memberGuidlow);
                     continue;
                 }
             }
 
             if (!group->LoadMemberFromDB(memberGuidlow, subgroup, assistent))
             {
-                sLog.outErrorDb("Incorrect entry in group_member table : member %s cannot be added to group (Id: %u)!",
+                sLog.outErrorDb("Incorrect entry in party_member table : member %s cannot be added to group (Id: %u)!",
                                 memberGuid.GetString().c_str(), groupId);
-                CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%u'", memberGuidlow);
+                CharacterDatabase.PExecute("DELETE FROM party_member WHERE memberGuid = '%u'", memberGuidlow);
             }
         }
         while (result->NextRow());
@@ -4662,8 +4662,8 @@ void ObjectMgr::LoadGroups()
                  // 5
                  "(SELECT COUNT(*) FROM `character_instance` WHERE `guid` = `group_instance`.`leaderGuid` AND `instance` = `group_instance`.`instance` AND `permanent` = 1 LIMIT 1), "
                  // 6
-                 " `groups`.`groupId` "
-                 "FROM `group_instance` LEFT JOIN `instance` ON `instance` = `id` LEFT JOIN `groups` ON `groups`.`leaderGUID` = `group_instance`.`leaderGUID` ORDER BY `leaderGuid`"
+                 " `parties`.`groupId` "
+                 "FROM `group_instance` LEFT JOIN `instance` ON `instance` = `id` LEFT JOIN `parties` ON `parties`.`leaderGUID` = `group_instance`.`leaderGUID` ORDER BY `leaderGuid`"
              ));
 
     if (!result)
@@ -6786,7 +6786,7 @@ void ObjectMgr::PackGroupIds()
     // all valid ids are in the instance table
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
-    std::unique_ptr<QueryResult> result(CharacterDatabase.Query("SELECT `groupId` FROM `groups` ORDER BY `groupId` ASC"));
+    std::unique_ptr<QueryResult> result(CharacterDatabase.Query("SELECT `groupId` FROM `parties` ORDER BY `groupId` ASC"));
     if (result)
     {
         do
@@ -6798,8 +6798,8 @@ void ObjectMgr::PackGroupIds()
             if (id == 0)
             {
                 CharacterDatabase.BeginTransaction();
-                CharacterDatabase.PExecute("DELETE FROM `groups` WHERE `groupId` = '%u'", id);
-                CharacterDatabase.PExecute("DELETE FROM `group_member` WHERE `groupId` = '%u'", id);
+                CharacterDatabase.PExecute("DELETE FROM `parties` WHERE `groupId` = '%u'", id);
+                CharacterDatabase.PExecute("DELETE FROM `party_member` WHERE `groupId` = '%u'", id);
                 CharacterDatabase.CommitTransaction();
                 continue;
             }
@@ -6820,8 +6820,8 @@ void ObjectMgr::PackGroupIds()
         {
             // remap group id
             CharacterDatabase.BeginTransaction();
-            CharacterDatabase.PExecute("UPDATE `groups` SET `groupId` = '%u' WHERE `groupId` = '%u'", groupId, *i);
-            CharacterDatabase.PExecute("UPDATE `group_member` SET `groupId` = '%u' WHERE `groupId` = '%u'", groupId, *i);
+            CharacterDatabase.PExecute("UPDATE `parties` SET `groupId` = '%u' WHERE `groupId` = '%u'", groupId, *i);
+            CharacterDatabase.PExecute("UPDATE `party_member` SET `groupId` = '%u' WHERE `groupId` = '%u'", groupId, *i);
             CharacterDatabase.CommitTransaction();
         }
 
@@ -6887,7 +6887,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_GuildIds.Set((*result)[0].GetUInt32() + 1);
 
-    result.reset(CharacterDatabase.Query("SELECT MAX(`groupId`) FROM `groups`"));
+    result.reset(CharacterDatabase.Query("SELECT MAX(`groupId`) FROM `parties`"));
     if (result)
         m_GroupIds.Set((*result)[0].GetUInt32() + 1);
 

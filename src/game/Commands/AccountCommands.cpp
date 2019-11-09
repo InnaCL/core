@@ -757,7 +757,7 @@ bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
     QueryResult *result = LoginDatabase.PQuery(
     "SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate,banreason,bannedby,COALESCE(name, \"NoRealm\") , gmlevel "
-    "FROM account_banned LEFT JOIN realmlist ON realmlist.id = realm "
+    "FROM account_banned LEFT JOIN realmlist_classic ON realmlist_classic.id = realm "
     "WHERE account_banned.id = '%u' ORDER BY bandate ASC", accountid);
     if (!result)
     {
